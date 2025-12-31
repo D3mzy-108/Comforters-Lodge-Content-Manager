@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+#root {
+    width: 100vw;
+    width: 100dvw;
+}
+
+.outline-btn {
+    @apply bg-transparent border-2 border-gray-200 text-black;
+}
+
+.primary-btn {
+    @apply bg-black/90 text-white;
+}
+
+.secondary-btn {
+    @apply bg-gray-200 text-black;
+}
+
+.tab-style {
+    @apply bg-gray-100 data-[state=active]:bg-white data-[state=active]:border-0 data-[state=active]:outline-0;
+}
+
+.scroll-style {
+    @apply max-h-[60vh] overflow-auto pr-3 -mr-3;
+}
+
+.scroll-style::-webkit-scrollbar {
+    @apply w-1.25;
+}
+
+.scroll-style::-webkit-scrollbar-track {
+    @apply bg-gray-100 my-4 rounded-full;
+}
+
+.scroll-style::-webkit-scrollbar-thumb {
+    @apply bg-black/80 rounded-full;
+}
