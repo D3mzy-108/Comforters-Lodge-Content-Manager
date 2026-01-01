@@ -71,9 +71,9 @@ export default function CreatePostDialog({
         fd.append("tsv_file", tsv);
       } else {
         // Append fields for single create
-        fd.append("series_title", openingHook);
+        fd.append("series_title", series_title);
         fd.append("personal_question", personalQuestion);
-        fd.append("theme", openingHook);
+        fd.append("theme", theme);
         fd.append("opening_hook", openingHook);
         fd.append("biblical_qa", biblicalQA);
         fd.append("reflection", reflection);

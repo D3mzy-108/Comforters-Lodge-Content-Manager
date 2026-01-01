@@ -124,7 +124,7 @@ export default function PostsPanel({
                           {p.personal_question}
                         </div>
                         <div className="mt-1 text-sm text-muted-foreground line-clamp-1">
-                          {p.series_title}
+                          {p.theme}
                         </div>
                       </TableCell>
                       <TableCell className="px-8">
