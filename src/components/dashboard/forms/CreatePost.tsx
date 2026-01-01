@@ -32,7 +32,9 @@ export default function CreatePostDialog({
   const [busy, setBusy] = useState(false);
 
   // Single fields
+  const [series_title, setSeriesTitle] = useState("");
   const [openingHook, setOpeningHook] = useState("");
+  const [theme, setTheme] = useState("");
   const [personalQuestion, setPersonalQuestion] = useState("");
   const [biblicalQA, setBiblicalQA] = useState("");
   const [reflection, setReflection] = useState("");
@@ -45,7 +47,9 @@ export default function CreatePostDialog({
   const [tsv, setTsv] = useState<File | null>(null);
 
   const reset = () => {
+    setSeriesTitle("");
     setOpeningHook("");
+    setTheme("");
     setPersonalQuestion("");
     setBiblicalQA("");
     setReflection("");
@@ -134,10 +138,26 @@ export default function CreatePostDialog({
               <div className="scroll-style">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2 sm:col-span-2">
+                    <Label>Series Title</Label>
+                    <Input
+                      value={series_title}
+                      onChange={(e) => setSeriesTitle(e.target.value)}
+                      placeholder="Arresting one-liner…"
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
                     <Label>Opening Hook</Label>
                     <Input
                       value={openingHook}
                       onChange={(e) => setOpeningHook(e.target.value)}
+                      placeholder="Arresting one-liner…"
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label>Theme</Label>
+                    <Input
+                      value={theme}
+                      onChange={(e) => setTheme(e.target.value)}
                       placeholder="Arresting one-liner…"
                     />
                   </div>
@@ -218,8 +238,9 @@ export default function CreatePostDialog({
                     TSV header required
                   </div>
                   <div className="mt-1.5 text-base">
-                    opening_hook, personal_question, biblical_qa, reflection,
-                    story, prayer, activity_guide, date_posted
+                    series_title, opening_hook, theme, personal_question,
+                    biblical_qa, reflection, story, prayer, activity_guide,
+                    date_posted
                   </div>
                 </div>
                 <div className="mt-0.75 text-sm text-muted-foreground">

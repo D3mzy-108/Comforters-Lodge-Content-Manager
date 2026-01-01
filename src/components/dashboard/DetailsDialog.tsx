@@ -116,7 +116,9 @@ export function PostDetailButton({ id }: { id: number }) {
             </Badge>
           </div>
           <Separator />
+          <Field label="Series Title" value={data.series_title} />
           <Field label="Opening Hook" value={data.opening_hook} />
+          <Field label="Theme" value={data.theme} />
           <Field label="Personal Question" value={data.personal_question} />
           <Field label="Biblical Question & Answer" value={data.biblical_qa} />
           <Field label="Reflection" value={data.reflection} />

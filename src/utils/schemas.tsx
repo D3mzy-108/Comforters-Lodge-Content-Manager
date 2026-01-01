@@ -1,7 +1,9 @@
 export type DailyPost = {
   id: number;
-  opening_hook: string;
+  series_title: string;
   personal_question: string;
+  theme: string;
+  opening_hook: string;
   biblical_qa: string;
   reflection: string;
   story: string;
