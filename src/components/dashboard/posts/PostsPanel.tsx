@@ -121,10 +121,10 @@ export default function PostsPanel({
                       </TableCell>
                       <TableCell className="border-x px-8">
                         <div className="font-medium line-clamp-2">
-                          {p.opening_hook}
+                          {p.personal_question}
                         </div>
                         <div className="mt-1 text-sm text-muted-foreground line-clamp-1">
-                          {p.personal_question}
+                          {p.series_title}
                         </div>
                       </TableCell>
                       <TableCell className="px-8">
