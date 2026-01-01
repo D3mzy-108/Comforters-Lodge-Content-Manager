@@ -71,8 +71,10 @@ export default function CreatePostDialog({
         fd.append("tsv_file", tsv);
       } else {
         // Append fields for single create
-        fd.append("opening_hook", openingHook);
+        fd.append("series_title", openingHook);
         fd.append("personal_question", personalQuestion);
+        fd.append("theme", openingHook);
+        fd.append("opening_hook", openingHook);
         fd.append("biblical_qa", biblicalQA);
         fd.append("reflection", reflection);
         fd.append("story", story);
@@ -146,11 +148,11 @@ export default function CreatePostDialog({
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
-                    <Label>Opening Hook</Label>
-                    <Input
-                      value={openingHook}
-                      onChange={(e) => setOpeningHook(e.target.value)}
-                      placeholder="Arresting one-liner…"
+                    <Label>Personal Question</Label>
+                    <Textarea
+                      value={personalQuestion}
+                      onChange={(e) => setPersonalQuestion(e.target.value)}
+                      placeholder="Piercing self-examination…"
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
@@ -162,11 +164,11 @@ export default function CreatePostDialog({
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
-                    <Label>Personal Question</Label>
-                    <Textarea
-                      value={personalQuestion}
-                      onChange={(e) => setPersonalQuestion(e.target.value)}
-                      placeholder="Piercing self-examination…"
+                    <Label>Opening Hook</Label>
+                    <Input
+                      value={openingHook}
+                      onChange={(e) => setOpeningHook(e.target.value)}
+                      placeholder="Arresting one-liner…"
                     />
                   </div>
                   <div className="space-y-2 sm:col-span-2">
