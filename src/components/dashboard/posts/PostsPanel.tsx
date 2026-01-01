@@ -131,7 +131,10 @@ export default function PostsPanel({
                         <div className="flex items-center justify-end gap-2">
                           <PostDetailButton id={p.id} />
                           <DeleteButton
-                            label={`Delete ${p.opening_hook}`}
+                            label={`Delete ${p.personal_question.substring(
+                              0,
+                              10
+                            )}...`}
                             onConfirm={async () => {
                               await api(`/posts/${p.id}`, { method: "DELETE" });
                               onDeleted();
