@@ -101,7 +101,7 @@ export default function PostsPanel({
               action={<CreatePostDialog onCreated={onCreated} />}
             />
           ) : (
-            <div className="rounded-2xl border">
+            <div className="rounded-2xl border text-wrap">
               <Table>
                 <TableHeader>
                   <TableRow>

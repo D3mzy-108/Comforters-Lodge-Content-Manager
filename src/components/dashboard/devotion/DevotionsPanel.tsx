@@ -100,7 +100,7 @@ export default function DevotionsPanel({
               action={<CreateDevotionDialog onCreated={onCreated} />}
             />
           ) : (
-            <div className="rounded-2xl border">
+            <div className="rounded-2xl border text-wrap">
               <Table>
                 <TableHeader>
                   <TableRow>
