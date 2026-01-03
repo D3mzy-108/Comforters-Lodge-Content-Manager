@@ -10,8 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { Calendar, Loader2, RefreshCw, Search } from "lucide-react";
-import type { DailyPost } from "../../../utils/schemas";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  RefreshCw,
+  Search,
+} from "lucide-react";
+import type { DailyPost, PostPaginator } from "../../../utils/schemas";
 import EmptyState from "../EmptyDataState";
 import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
@@ -26,6 +33,8 @@ export default function PostsPanel({
   onReload,
   onCreated,
   onDeleted,
+  pagePaginator,
+  onPageChange,
 }: {
   posts: DailyPost[];
   loading: boolean;
@@ -33,6 +42,8 @@ export default function PostsPanel({
   onReload: () => void;
   onCreated: () => void;
   onDeleted: () => void;
+  pagePaginator: PostPaginator;
+  onPageChange: (page: number) => void;
 }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
@@ -148,6 +159,30 @@ export default function PostsPanel({
               </Table>
             </div>
           )}
+
+          <div className="w-full flex justify-center gap-4 items-center mt-8">
+            <Button
+              variant={"default"}
+              size={"lg"}
+              className="px-4 py-6 outline-btn"
+              onClick={() => onPageChange(pagePaginator.page - 1)}
+              disabled={pagePaginator.page === 1}
+            >
+              <ChevronLeft />
+            </Button>
+            <span className="text-lg">
+              {pagePaginator.page} of {pagePaginator.ttl_pages}
+            </span>
+            <Button
+              variant={"default"}
+              size={"lg"}
+              className="px-4 py-6 outline-btn"
+              onClick={() => onPageChange(pagePaginator.page + 1)}
+              disabled={pagePaginator.page === pagePaginator.ttl_pages}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

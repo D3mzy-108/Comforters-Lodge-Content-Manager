@@ -19,3 +19,8 @@ export type DailyDevotion = {
   verse_content: string;
   date_posted: string; // ISO date
 };
+
+export type PostPaginator = {
+  page: number;
+  ttl_pages: number;
+};

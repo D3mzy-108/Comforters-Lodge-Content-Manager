@@ -8,7 +8,7 @@ import {
 } from "../components/ui/tabs";
 import { BookOpen, Image as ImageIcon } from "lucide-react";
 import { useToastLike } from "../components/toastFeedback";
-import type { DailyDevotion, DailyPost } from "../utils/schemas";
+import type { DailyDevotion, DailyPost, PostPaginator } from "../utils/schemas";
 import { api } from "../utils/api/api_connection";
 import TopBar from "../components/dashboard/TopBar";
 import PostsPanel from "../components/dashboard/posts/PostsPanel";
@@ -23,22 +23,36 @@ export default function ComfortersLodgeAdmin() {
   const [posts, setPosts] = useState<DailyPost[]>([]);
   const [devotions, setDevotions] = useState<DailyDevotion[]>([]);
 
+  const [postPaginator, setPostPaginator] = useState<PostPaginator>({
+    page: 1,
+    ttl_pages: 1,
+  });
+
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingDevotions, setLoadingDevotions] = useState(false);
 
   const [errPosts, setErrPosts] = useState<string | null>(null);
   const [errDevotions, setErrDevotions] = useState<string | null>(null);
 
-  const refreshPosts = async () => {
+  const refreshPosts = async (page: number = postPaginator.page) => {
     setLoadingPosts(true);
     setErrPosts(null);
     try {
-      const data = await api<DailyPost[]>("/posts");
-      setPosts(data);
+      const data = await api<{
+        posts: DailyPost[];
+        page: number;
+        total_pages: number;
+      }>(`/posts?page=${page}`);
+      setPosts(data.posts as DailyPost[]);
+      setPostPaginator({
+        page: data.page,
+        ttl_pages: data.total_pages,
+      });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setErrPosts(e?.message || "Failed to load posts");
       setPosts(posts);
+      setPostPaginator(postPaginator);
     } finally {
       setLoadingPosts(false);
     }
@@ -108,6 +122,10 @@ export default function ComfortersLodgeAdmin() {
                 onDeleted={async () => {
                   await refreshPosts();
                   show("Post deleted.");
+                }}
+                pagePaginator={postPaginator}
+                onPageChange={async (page: number) => {
+                  await refreshPosts(page);
                 }}
               />
             </TabsContent>
