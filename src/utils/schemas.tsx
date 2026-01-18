@@ -20,6 +20,19 @@ export type DailyDevotion = {
   date_posted: string; // ISO date
 };
 
+export type Hymn = {
+  id: number;
+  hymn_number: number;
+  hymn_title: string;
+  classification: string;
+  tune_ref: string;
+  cross_ref: string;
+  scripture: string;
+  chorus_title: string;
+  chorus: string;
+  verses: string[];
+};
+
 export type PagePaginator = {
   page: number;
   ttl_pages: number | undefined | null;

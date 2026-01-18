@@ -6,12 +6,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { BookOpen, Image as ImageIcon } from "lucide-react";
+import { BookOpen, Image as ImageIcon, Music2Icon } from "lucide-react";
 import { useToastLike } from "../components/toastFeedback";
 import type {
   DailyDevotion,
   DailyPost,
   DashboardDisplayMode,
+  Hymn,
   PagePaginator,
 } from "../utils/schemas";
 import { api } from "../utils/api/api_connection";
@@ -26,6 +27,7 @@ export default function ComfortersLodgeAdmin() {
 
   const [posts, setPosts] = useState<DailyPost[]>([]);
   const [devotions, setDevotions] = useState<DailyDevotion[]>([]);
+  const [hymns, setHymns] = useState<Hymn[]>([]);
 
   const [postPaginator, setPostPaginator] = useState<PagePaginator>({
     page: 1,
@@ -39,12 +41,21 @@ export default function ComfortersLodgeAdmin() {
       progress: null,
     }
   );
+  const [hymnsPaginator, setHymnsPaginator] = useState<PagePaginator>({
+    page: 1,
+    ttl_pages: null,
+    progress: "0 of 0",
+  });
+  const HYMN_PAGE_SIZE = 30;
+  const [TOTAL_HYMNS, SET_TOTAL_HYMNS] = useState(0);
 
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingDevotions, setLoadingDevotions] = useState(false);
+  const [loadingHymns, setLoadingHymns] = useState(false);
 
   const [errPosts, setErrPosts] = useState<string | null>(null);
   const [errDevotions, setErrDevotions] = useState<string | null>(null);
+  const [errHymns, setErrHymns] = useState<string | null>(null);
 
   const refreshPosts = async (page: number = postPaginator.page) => {
     setLoadingPosts(true);
@@ -71,7 +82,7 @@ export default function ComfortersLodgeAdmin() {
     }
   };
 
-  const refreshDevotions = async (page: number = postPaginator.page) => {
+  const refreshDevotions = async (page: number = devotionalPaginator.page) => {
     setLoadingDevotions(true);
     setErrDevotions(null);
     try {
@@ -96,8 +107,39 @@ export default function ComfortersLodgeAdmin() {
     }
   };
 
+  const refreshHymns = async (page: number = hymnsPaginator.page) => {
+    setLoadingHymns(true);
+    setErrDevotions(null);
+    try {
+      const data = await api<{
+        hymns: Hymn[];
+        page: number;
+        totalHymns: number;
+      }>(`/hymns?page=${page}`);
+      setHymns(data.hymns);
+      const offset = (page - 1) * HYMN_PAGE_SIZE;
+      setHymnsPaginator({
+        page: data.page,
+        ttl_pages: null,
+        progress: `${offset + 1}-${
+          data.totalHymns > HYMN_PAGE_SIZE
+            ? offset + HYMN_PAGE_SIZE
+            : data.totalHymns
+        } of ${data.totalHymns}`,
+      });
+      SET_TOTAL_HYMNS(data.totalHymns);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setErrHymns(e?.message || "Failed to load devotions");
+      setHymns(hymns);
+      setHymnsPaginator(hymnsPaginator);
+    } finally {
+      setLoadingHymns(false);
+    }
+  };
+
   const refreshAll = async () => {
-    await Promise.all([refreshPosts(), refreshDevotions()]);
+    await Promise.all([refreshPosts(), refreshDevotions(), refreshHymns()]);
     show("Refreshed.");
   };
 
@@ -138,7 +180,7 @@ export default function ComfortersLodgeAdmin() {
               </TabsTrigger>
               <TabsTrigger value="hymns" className="gap-2 tab-style h-full">
                 <div className="flex gap-2 items-center">
-                  <ImageIcon className="size-4 md:size-5" />
+                  <Music2Icon className="size-4 md:size-5" />
                   <span className="text-base md:text-lg">Hymns</span>
                 </div>
               </TabsTrigger>
@@ -149,7 +191,7 @@ export default function ComfortersLodgeAdmin() {
                 posts={posts}
                 loading={loadingPosts}
                 error={errPosts}
-                onReload={refreshPosts}
+                onReload={() => refreshPosts(postPaginator.page)}
                 onCreated={async () => {
                   await refreshPosts();
                   show("Posts updated.");
@@ -170,7 +212,7 @@ export default function ComfortersLodgeAdmin() {
                 devotions={devotions}
                 loading={loadingDevotions}
                 error={errDevotions}
-                onReload={refreshDevotions}
+                onReload={() => refreshDevotions(devotionalPaginator.page)}
                 onCreated={async () => {
                   await refreshDevotions();
                   show("Devotions updated.");
@@ -187,7 +229,28 @@ export default function ComfortersLodgeAdmin() {
             </TabsContent>
 
             <TabsContent value="hymns" className="mt-6">
-              <HymnsPanel />
+              <HymnsPanel
+                hymns={hymns}
+                error={errHymns}
+                loading={loadingHymns}
+                onReload={() => refreshHymns(hymnsPaginator.page)}
+                onCreated={async () => {
+                  await refreshHymns();
+                  show("Hymns updated.");
+                }}
+                onDeleted={async () => {
+                  await refreshHymns();
+                  show("Hymn deleted.");
+                }}
+                onPageChange={async (page: number) => {
+                  await refreshHymns(page);
+                }}
+                pagePaginator={hymnsPaginator}
+                isLastPage={
+                  (hymnsPaginator.page - 1) * HYMN_PAGE_SIZE + HYMN_PAGE_SIZE >=
+                  TOTAL_HYMNS
+                }
+              />
             </TabsContent>
           </Tabs>
         </div>

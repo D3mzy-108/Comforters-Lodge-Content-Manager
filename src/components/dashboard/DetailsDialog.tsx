@@ -10,8 +10,14 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { api } from "../../utils/api/api_connection";
-import type { DailyDevotion, DailyPost } from "../../utils/schemas";
-import { Calendar, ChevronRight, ImageIcon, Loader2 } from "lucide-react";
+import type { DailyDevotion, DailyPost, Hymn } from "../../utils/schemas";
+import {
+  Calendar,
+  ChevronRight,
+  ImageIcon,
+  Loader2,
+  Music2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import EmptyState from "./EmptyDataState";
 import { Badge } from "../ui/badge";
@@ -65,6 +71,9 @@ function Field({
   );
 }
 
+// ---------------------------------------------------
+// LESSON DETAILS DIALOG COMPONENTS
+// ---------------------------------------------------
 export function PostDetailButton({ id }: { id: number }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<DailyPost | null>(null);
@@ -131,6 +140,9 @@ export function PostDetailButton({ id }: { id: number }) {
   );
 }
 
+// ---------------------------------------------------
+// DEVOTIONAL DETAILS DIALOG COMPONENTS
+// ---------------------------------------------------
 export function DevotionDetailButton({ id }: { id: number }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<DailyDevotion | null>(null);
@@ -196,6 +208,148 @@ export function DevotionDetailButton({ id }: { id: number }) {
           </div>
           <Separator />
           <Field label="Verse Content" value={data.verse_content} />
+        </div>
+      )}
+    </DetailDialog>
+  );
+}
+
+// ---------------------------------------------------
+// HYMN DETAILS DIALOG COMPONENTS
+// ---------------------------------------------------
+function VerseBlock({
+  index,
+  verse,
+  chorus,
+}: {
+  index: number;
+  verse: string;
+  chorus?: string;
+}) {
+  const hasChorus = Boolean((chorus || "").trim());
+
+  return (
+    <div className="space-y-3">
+      <div className="text-sm text-muted-foreground">Verse {index + 1}:</div>
+      <div className="whitespace-pre-wrap leading-relaxed">{verse}</div>
+
+      {hasChorus && (
+        <div className="rounded-3xl border bg-background/60 p-4">
+          <div className="text-sm text-muted-foreground">Chorus:</div>
+          <div className="mt-0.75 whitespace-pre-wrap leading-relaxed">
+            {chorus}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function HymnDetailsButton({ id }: { id: number }) {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<Hymn | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  return (
+    <DetailDialog
+      title={`Hymn #${id}`}
+      description="Full content preview"
+      trigger={
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-xl primary-btn"
+          onClick={async () => {
+            setLoading(true);
+            setErr(null);
+            try {
+              const d = await api<Hymn>(`/hymns/${id}`);
+              setData(d);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (e: any) {
+              setErr(e?.message || "Failed to load");
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </Button>
+      }
+    >
+      {err ? (
+        <EmptyState title="Could not load hymn" subtitle={err} />
+      ) : !data ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {/* Header / identity */}
+          <div className="flex items-center gap-4">
+            <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border bg-background">
+              <Music2Icon className="h-6 w-6 text-muted-foreground" />
+            </div>
+
+            <div className="min-w-0">
+              <div className="text-lg font-semibold truncate">
+                Hymn {data.hymn_number}: {data.hymn_title}
+              </div>
+
+              <div className="mt-1 text-sm text-muted-foreground">
+                {(data.classification || "").trim() ? (
+                  <span>{data.classification}</span>
+                ) : (
+                  <span className="italic">No classification</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Metadata */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Tune Ref" value={data.tune_ref || "—"} />
+            <Field label="Cross Ref" value={data.cross_ref || "—"} />
+            <Field label="Scripture" value={data.scripture || "—"} />
+            <Field label="Chorus Title" value={data.chorus_title || "—"} />
+          </div>
+
+          <Separator />
+
+          {/* Verses with chorus repeated after every verse */}
+          <div className="space-y-6">
+            <div className="text-base font-semibold">Lyrics</div>
+
+            {(data.verses || []).length === 0 ? (
+              <EmptyState
+                title="No verses found"
+                subtitle="This hymn does not have any verses saved."
+              />
+            ) : (
+              <div className="space-y-7">
+                {JSON.parse(data.verses.toString()).map(
+                  (verse: string, idx: number) => (
+                    <div key={idx} className="space-y-5">
+                      <VerseBlock
+                        index={idx}
+                        verse={verse}
+                        chorus={data.chorus}
+                      />
+                      {idx < JSON.parse(data.verses.toString()).length - 1 ? (
+                        <Separator />
+                      ) : null}
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </DetailDialog>
