@@ -333,20 +333,16 @@ export function HymnDetailsButton({ id }: { id: number }) {
               />
             ) : (
               <div className="space-y-7">
-                {JSON.parse(data.verses.toString()).map(
-                  (verse: string, idx: number) => (
-                    <div key={idx} className="space-y-5">
-                      <VerseBlock
-                        index={idx}
-                        verse={verse}
-                        chorus={data.chorus}
-                      />
-                      {idx < JSON.parse(data.verses.toString()).length - 1 ? (
-                        <Separator />
-                      ) : null}
-                    </div>
-                  )
-                )}
+                {data.verses.map((verse: string, idx: number) => (
+                  <div key={idx} className="space-y-5">
+                    <VerseBlock
+                      index={idx}
+                      verse={verse}
+                      chorus={data.chorus}
+                    />
+                    {idx < data.verses.length - 1 ? <Separator /> : null}
+                  </div>
+                ))}
               </div>
             )}
           </div>
