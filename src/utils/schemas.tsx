@@ -20,7 +20,11 @@ export type DailyDevotion = {
   date_posted: string; // ISO date
 };
 
-export type PostPaginator = {
+export type PagePaginator = {
   page: number;
-  ttl_pages: number;
+  ttl_pages: number | undefined | null;
+  progress: string | undefined | null;
 };
+
+export type DashboardDisplayMode = "posts" | "devotions" | "hymns";
+export type UploadMode = "single" | "tsv";

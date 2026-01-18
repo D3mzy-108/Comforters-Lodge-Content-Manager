@@ -10,8 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "../../ui/table";
-import { Calendar, ImageIcon, Loader2, RefreshCw, Search } from "lucide-react";
-import type { DailyDevotion } from "../../../utils/schemas";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ImageIcon,
+  Loader2,
+  RefreshCw,
+  Search,
+} from "lucide-react";
+import type { DailyDevotion, PagePaginator } from "../../../utils/schemas";
 import EmptyState from "../EmptyDataState";
 import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
@@ -26,6 +34,8 @@ export default function DevotionsPanel({
   onReload,
   onCreated,
   onDeleted,
+  pagePaginator,
+  onPageChange,
 }: {
   devotions: DailyDevotion[];
   loading: boolean;
@@ -33,6 +43,8 @@ export default function DevotionsPanel({
   onReload: () => void;
   onCreated: () => void;
   onDeleted: () => void;
+  pagePaginator: PagePaginator;
+  onPageChange: (page: number) => void;
 }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
@@ -160,6 +172,30 @@ export default function DevotionsPanel({
               </Table>
             </div>
           )}
+
+          <div className="w-full flex justify-center gap-4 items-center mt-8">
+            <Button
+              variant={"default"}
+              size={"lg"}
+              className="px-4 py-6 outline-btn"
+              onClick={() => onPageChange(pagePaginator.page - 1)}
+              disabled={pagePaginator.page === 1}
+            >
+              <ChevronLeft />
+            </Button>
+            <span className="text-lg">
+              {pagePaginator.page} of {pagePaginator.ttl_pages}
+            </span>
+            <Button
+              variant={"default"}
+              size={"lg"}
+              className="px-4 py-6 outline-btn"
+              onClick={() => onPageChange(pagePaginator.page + 1)}
+              disabled={pagePaginator.page === pagePaginator.ttl_pages}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

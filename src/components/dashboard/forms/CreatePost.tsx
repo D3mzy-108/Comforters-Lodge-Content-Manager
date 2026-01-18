@@ -17,9 +17,7 @@ import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Textarea } from "../../ui/textarea";
 import { api } from "../../../utils/api/api_connection";
-import type { DailyPost } from "../../../utils/schemas";
-
-type Mode = "single" | "tsv";
+import type { DailyPost, UploadMode } from "../../../utils/schemas";
 
 export default function CreatePostDialog({
   onCreated,
@@ -28,7 +26,7 @@ export default function CreatePostDialog({
 }) {
   const { show, node } = useToastLike();
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<Mode>("single");
+  const [mode, setMode] = useState<UploadMode>("single");
   const [busy, setBusy] = useState(false);
 
   // Single fields
@@ -126,7 +124,7 @@ export default function CreatePostDialog({
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
+          <Tabs value={mode} onValueChange={(v) => setMode(v as UploadMode)}>
             <TabsList className="grid w-full grid-cols-2 pb-12">
               <TabsTrigger className="tab-style" value="single">
                 Single

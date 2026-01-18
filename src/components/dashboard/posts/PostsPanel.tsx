@@ -18,7 +18,7 @@ import {
   RefreshCw,
   Search,
 } from "lucide-react";
-import type { DailyPost, PostPaginator } from "../../../utils/schemas";
+import type { DailyPost, PagePaginator } from "../../../utils/schemas";
 import EmptyState from "../EmptyDataState";
 import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
@@ -42,12 +42,11 @@ export default function PostsPanel({
   onReload: () => void;
   onCreated: () => void;
   onDeleted: () => void;
-  pagePaginator: PostPaginator;
+  pagePaginator: PagePaginator;
   onPageChange: (page: number) => void;
 }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
-    console.log(posts);
     const s = q.trim().toLowerCase();
     if (!s) return posts;
     return posts.filter((p) => {

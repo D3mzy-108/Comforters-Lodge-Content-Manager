@@ -3,13 +3,14 @@ import { BookOpen, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { API_BASE } from "../../utils/api/base";
+import type { DashboardDisplayMode } from "../../utils/schemas";
 
 export default function TopBar({
   active,
   onRefresh,
   refreshing,
 }: {
-  active: "posts" | "devotions";
+  active: DashboardDisplayMode;
   onRefresh: () => void;
   refreshing: boolean;
 }) {
@@ -48,13 +49,15 @@ export default function TopBar({
         </Button>
         <Badge
           className={cn(
-            "rounded-full",
+            "rounded-full capitalize",
             active === "posts"
               ? "bg-primary text-primary-foreground"
+              : active === "hymns"
+              ? "bg-gray-600 text-gray-100"
               : "bg-secondary text-secondary-foreground"
           )}
         >
-          {active === "posts" ? "Posts" : "Devotions"}
+          {active}
         </Badge>
       </div>
     </div>

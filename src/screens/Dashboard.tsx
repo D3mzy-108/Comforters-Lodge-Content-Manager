@@ -8,13 +8,17 @@ import {
 } from "../components/ui/tabs";
 import { BookOpen, Image as ImageIcon } from "lucide-react";
 import { useToastLike } from "../components/toastFeedback";
-import type { DailyDevotion, DailyPost, PostPaginator } from "../utils/schemas";
+import type {
+  DailyDevotion,
+  DailyPost,
+  DashboardDisplayMode,
+  PagePaginator,
+} from "../utils/schemas";
 import { api } from "../utils/api/api_connection";
 import TopBar from "../components/dashboard/TopBar";
 import PostsPanel from "../components/dashboard/posts/PostsPanel";
 import DevotionsPanel from "../components/dashboard/devotion/DevotionsPanel";
-
-type DashboardDisplayMode = "posts" | "devotions";
+import HymnsPanel from "../components/dashboard/hymns/HymnsPanel";
 
 export default function ComfortersLodgeAdmin() {
   const { show, node } = useToastLike();
@@ -23,10 +27,18 @@ export default function ComfortersLodgeAdmin() {
   const [posts, setPosts] = useState<DailyPost[]>([]);
   const [devotions, setDevotions] = useState<DailyDevotion[]>([]);
 
-  const [postPaginator, setPostPaginator] = useState<PostPaginator>({
+  const [postPaginator, setPostPaginator] = useState<PagePaginator>({
     page: 1,
     ttl_pages: 1,
+    progress: null,
   });
+  const [devotionalPaginator, setDevotionalPaginator] = useState<PagePaginator>(
+    {
+      page: 1,
+      ttl_pages: 1,
+      progress: null,
+    }
+  );
 
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [loadingDevotions, setLoadingDevotions] = useState(false);
@@ -47,6 +59,7 @@ export default function ComfortersLodgeAdmin() {
       setPostPaginator({
         page: data.page,
         ttl_pages: data.total_pages,
+        progress: null,
       });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
@@ -58,16 +71,26 @@ export default function ComfortersLodgeAdmin() {
     }
   };
 
-  const refreshDevotions = async () => {
+  const refreshDevotions = async (page: number = postPaginator.page) => {
     setLoadingDevotions(true);
     setErrDevotions(null);
     try {
-      const data = await api<DailyDevotion[]>("/devotions");
-      setDevotions(data);
+      const data = await api<{
+        devotionals: DailyDevotion[];
+        page: number;
+        total_pages: number;
+      }>(`/devotions?page=${page}`);
+      setDevotions(data.devotionals);
+      setDevotionalPaginator({
+        page: data.page,
+        ttl_pages: data.total_pages,
+        progress: null,
+      });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setErrDevotions(e?.message || "Failed to load devotions");
       setDevotions(devotions);
+      setDevotionalPaginator(devotionalPaginator);
     } finally {
       setLoadingDevotions(false);
     }
@@ -100,12 +123,24 @@ export default function ComfortersLodgeAdmin() {
             value={tab}
             onValueChange={(v) => setTab(v as DashboardDisplayMode)}
           >
-            <TabsList className="grid w-full grid-cols-2 pb-12">
-              <TabsTrigger value="posts" className="gap-2 tab-style">
-                <BookOpen className="h-4 w-4" /> Posts
+            <TabsList className="grid w-full grid-cols-3 pb-12 max-w-screen">
+              <TabsTrigger value="posts" className="gap-2 tab-style h-full">
+                <div className="flex gap-2 items-center">
+                  <BookOpen className="size-4 md:size-5" />
+                  <span className="text-base md:text-lg">Posts</span>
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="devotions" className="gap-2 tab-style">
-                <ImageIcon className="h-4 w-4" /> Devotions
+              <TabsTrigger value="devotions" className="gap-2 tab-style h-full">
+                <div className="flex gap-2 items-center">
+                  <ImageIcon className="size-4 md:size-5" />
+                  <span className="text-base md:text-lg">Devotions</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="hymns" className="gap-2 tab-style h-full">
+                <div className="flex gap-2 items-center">
+                  <ImageIcon className="size-4 md:size-5" />
+                  <span className="text-base md:text-lg">Hymns</span>
+                </div>
               </TabsTrigger>
             </TabsList>
 
@@ -144,7 +179,15 @@ export default function ComfortersLodgeAdmin() {
                   await refreshDevotions();
                   show("Devotion deleted.");
                 }}
+                pagePaginator={devotionalPaginator}
+                onPageChange={async (page: number) => {
+                  await refreshDevotions(page);
+                }}
               />
+            </TabsContent>
+
+            <TabsContent value="hymns" className="mt-6">
+              <HymnsPanel />
             </TabsContent>
           </Tabs>
         </div>
