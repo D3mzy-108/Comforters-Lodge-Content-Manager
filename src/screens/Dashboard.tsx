@@ -39,7 +39,7 @@ export default function ComfortersLodgeAdmin() {
       page: 1,
       ttl_pages: 1,
       progress: null,
-    }
+    },
   );
   const [hymnsPaginator, setHymnsPaginator] = useState<PagePaginator>({
     page: 1,
@@ -169,19 +169,19 @@ export default function ComfortersLodgeAdmin() {
               <TabsTrigger value="posts" className="gap-2 tab-style h-full">
                 <div className="flex gap-2 items-center">
                   <BookOpen className="size-4 md:size-5" />
-                  <span className="text-base md:text-lg">Posts</span>
+                  <span className="text-sm md:text-base">Posts</span>
                 </div>
               </TabsTrigger>
               <TabsTrigger value="devotions" className="gap-2 tab-style h-full">
                 <div className="flex gap-2 items-center">
                   <ImageIcon className="size-4 md:size-5" />
-                  <span className="text-base md:text-lg">Devotions</span>
+                  <span className="text-sm md:text-base">Devotions</span>
                 </div>
               </TabsTrigger>
               <TabsTrigger value="hymns" className="gap-2 tab-style h-full">
                 <div className="flex gap-2 items-center">
                   <Music2Icon className="size-4 md:size-5" />
-                  <span className="text-base md:text-lg">Hymns</span>
+                  <span className="text-sm md:text-base">Hymns</span>
                 </div>
               </TabsTrigger>
             </TabsList>

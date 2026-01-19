@@ -25,7 +25,7 @@ import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
 import { DevotionDetailButton } from "../DetailsDialog";
-import CreateDevotionDialog from "../forms/devotion/CreateDevotion";
+import DevotionFormDialog from "../forms/devotion/DevotionForm";
 
 export default function DevotionsPanel({
   devotions,
@@ -79,7 +79,11 @@ export default function DevotionsPanel({
                 className="pl-9 sm:w-[320px]"
               />
             </div>
-            <CreateDevotionDialog onCreated={onCreated} />
+            <DevotionFormDialog
+              devotionData={undefined}
+              onCreated={onCreated}
+              children={undefined}
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -109,7 +113,13 @@ export default function DevotionsPanel({
                   ? "Try a different search."
                   : "Create your first Daily Devotion."
               }
-              action={<CreateDevotionDialog onCreated={onCreated} />}
+              action={
+                <DevotionFormDialog
+                  devotionData={undefined}
+                  onCreated={onCreated}
+                  children={undefined}
+                />
+              }
             />
           ) : (
             <div className="rounded-2xl border text-wrap">

@@ -11,24 +11,32 @@ import type { DailyPost, UploadMode } from "../../../../utils/schemas";
 import { FormField, type FormFieldData } from "../FormField";
 import BaseFormLayout from "../BaseFormLayout";
 
-export default function CreatePostDialog({
+export default function PostFormDialog({
+  postData,
   onCreated,
+  children,
 }: {
+  postData: DailyPost | undefined;
   onCreated: () => void;
+  children: React.ReactNode | undefined;
 }) {
   const { show, node } = useToastLike();
   const [mode, setMode] = useState<UploadMode>("single");
   // Single fields
-  const [series_title, setSeriesTitle] = useState("");
-  const [openingHook, setOpeningHook] = useState("");
-  const [theme, setTheme] = useState("");
-  const [personalQuestion, setPersonalQuestion] = useState("");
-  const [biblicalQA, setBiblicalQA] = useState("");
-  const [reflection, setReflection] = useState("");
-  const [story, setStory] = useState("");
-  const [prayer, setPrayer] = useState("");
-  const [activityGuide, setActivityGuide] = useState("");
-  const [datePosted, setDatePosted] = useState("");
+  const [series_title, setSeriesTitle] = useState(postData?.series_title || "");
+  const [openingHook, setOpeningHook] = useState(postData?.opening_hook || "");
+  const [theme, setTheme] = useState(postData?.theme || "");
+  const [personalQuestion, setPersonalQuestion] = useState(
+    postData?.personal_question || "",
+  );
+  const [biblicalQA, setBiblicalQA] = useState(postData?.biblical_qa || "");
+  const [reflection, setReflection] = useState(postData?.reflection || "");
+  const [story, setStory] = useState(postData?.story || "");
+  const [prayer, setPrayer] = useState(postData?.prayer || "");
+  const [activityGuide, setActivityGuide] = useState(
+    postData?.activity_guide || "",
+  );
+  const [datePosted, setDatePosted] = useState(postData?.date_posted || "");
   // TSV
   const [tsv, setTsv] = useState<File | null>(null);
   // Form Fields
@@ -171,10 +179,17 @@ export default function CreatePostDialog({
         if (datePosted.trim()) fd.append("date_posted", datePosted.trim());
       }
 
-      await api<DailyPost[]>("/posts", {
-        method: "POST",
-        body: fd,
-      });
+      if (postData !== undefined) {
+        await api<DailyPost[]>(`/posts/${postData.id}`, {
+          method: "PATCH",
+          body: fd,
+        });
+      } else {
+        await api<DailyPost[]>("/posts", {
+          method: "POST",
+          body: fd,
+        });
+      }
 
       show(mode === "tsv" ? "Bulk posts uploaded." : "Post created.");
       onCreated();
@@ -196,9 +211,11 @@ export default function CreatePostDialog({
         onSubmit={submit}
       >
         <BaseFormLayout.Trigger>
-          <Button className="gap-2 rounded-2xl primary-btn">
-            <PlusIcon className="h-4 w-4" /> Create Post
-          </Button>
+          {children ?? (
+            <Button className="gap-2 rounded-2xl primary-btn">
+              <PlusIcon className="h-4 w-4" /> Create Post
+            </Button>
+          )}
         </BaseFormLayout.Trigger>
 
         <BaseFormLayout.Content>
@@ -207,7 +224,11 @@ export default function CreatePostDialog({
               <TabsTrigger className="tab-style" value="single">
                 Single
               </TabsTrigger>
-              <TabsTrigger className="tab-style gap-2" value="tsv">
+              <TabsTrigger
+                className="tab-style gap-2"
+                value="tsv"
+                disabled={postData !== undefined}
+              >
                 <FileUpIcon className="h-4 w-4" />
                 Bulk TSV
               </TabsTrigger>

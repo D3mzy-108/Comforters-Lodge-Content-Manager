@@ -36,25 +36,35 @@ E.g.:
     Verse 3: Line 2;
     Verse 3: Line ...`;
 
-export default function CreateHymnDialog({
+export default function HymnFormDialog({
+  hymnData,
   onCreated,
+  children,
 }: {
+  hymnData: Hymn | undefined;
   onCreated: () => void;
+  children: React.ReactNode | undefined;
 }) {
   const { show, node } = useToastLike();
   const [mode, setMode] = useState<UploadMode>("single");
   // SINGLE FIELDS
-  const [hymnNumber, setHymnNumber] = useState<string>("");
-  const [hymnTitle, setHymnTitle] = useState("");
-  const [classification, setClassification] = useState("");
-  const [tuneRef, setTuneRef] = useState("");
-  const [crossRef, setCrossRef] = useState("");
-  const [scripture, setScripture] = useState("");
-  const [chorusTitle, setChorusTitle] = useState("");
-  const [chorus, setChorus] = useState("");
+  const [hymnNumber, setHymnNumber] = useState<string>(
+    hymnData?.hymn_number.toString() || "",
+  );
+  const [hymnTitle, setHymnTitle] = useState(hymnData?.hymn_title || "");
+  const [classification, setClassification] = useState(
+    hymnData?.classification || "",
+  );
+  const [tuneRef, setTuneRef] = useState(hymnData?.tune_ref || "");
+  const [crossRef, setCrossRef] = useState(hymnData?.cross_ref || "");
+  const [scripture, setScripture] = useState(hymnData?.scripture || "");
+  const [chorusTitle, setChorusTitle] = useState(hymnData?.chorus_title || "");
+  const [chorus, setChorus] = useState(hymnData?.chorus || "");
   // Verses UX: simple textarea that we split into an array
   // Tip: separate verses with a blank line.
-  const [versesText, setVersesText] = useState("");
+  const [versesText, setVersesText] = useState(
+    hymnData?.verses?.join("\n\n") || "",
+  );
   // TSV
   const [tsv, setTsv] = useState<File | null>(null);
 
@@ -212,10 +222,17 @@ export default function CreateHymnDialog({
         // versesArr.forEach((v) => fd.append("verses", v));
       }
 
-      await api<Hymn>("/hymns", {
-        method: "POST",
-        body: fd,
-      });
+      if (hymnData !== undefined) {
+        await api<Hymn>(`/hymns/${hymnData.id}`, {
+          method: "PATCH",
+          body: fd,
+        });
+      } else {
+        await api<Hymn>("/hymns", {
+          method: "POST",
+          body: fd,
+        });
+      }
 
       show("Hymn created.");
       onCreated();
@@ -237,9 +254,11 @@ export default function CreateHymnDialog({
         onSubmit={submit}
       >
         <BaseFormLayout.Trigger>
-          <Button className="gap-2 rounded-2xl">
-            <Music2Icon className="h-4 w-4" /> Create Hymn
-          </Button>
+          {children ?? (
+            <Button className="gap-2 rounded-2xl">
+              <Music2Icon className="h-4 w-4" /> Create Hymn
+            </Button>
+          )}
         </BaseFormLayout.Trigger>
         <BaseFormLayout.Content>
           <Tabs value={mode} onValueChange={(v) => setMode(v as UploadMode)}>
@@ -247,7 +266,11 @@ export default function CreateHymnDialog({
               <TabsTrigger className="tab-style" value="single">
                 Single
               </TabsTrigger>
-              <TabsTrigger className="tab-style gap-2" value="tsv">
+              <TabsTrigger
+                className="tab-style gap-2"
+                value="tsv"
+                disabled={hymnData !== undefined}
+              >
                 <FileUpIcon className="h-4 w-4" /> Bulk TSV
               </TabsTrigger>
             </TabsList>

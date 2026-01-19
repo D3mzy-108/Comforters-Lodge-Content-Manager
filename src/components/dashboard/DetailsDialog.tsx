@@ -14,6 +14,7 @@ import type { DailyDevotion, DailyPost, Hymn } from "../../utils/schemas";
 import {
   Calendar,
   ChevronRight,
+  Edit3Icon,
   ImageIcon,
   Loader2,
   Music2Icon,
@@ -23,6 +24,9 @@ import EmptyState from "./EmptyDataState";
 import { Badge } from "../ui/badge";
 import { formatDate } from "../../utils/format_utils";
 import { Separator } from "../ui/separator";
+import PostFormDialog from "./forms/posts/PostForm";
+import DevotionFormDialog from "./forms/devotion/DevotionForm";
+import HymnFormDialog from "./forms/hymns/HymnForm";
 
 function DetailDialog({
   title,
@@ -79,6 +83,20 @@ export function PostDetailButton({ id }: { id: number }) {
   const [data, setData] = useState<DailyPost | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const loadData = async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const p = await api<DailyPost>(`/posts/${id}`);
+      setData(p);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setErr(error?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DetailDialog
       title={`Daily Post #${id}`}
@@ -88,19 +106,7 @@ export function PostDetailButton({ id }: { id: number }) {
           variant="outline"
           size="icon"
           className="rounded-xl primary-btn"
-          onClick={async () => {
-            setLoading(true);
-            setErr(null);
-            try {
-              const p = await api<DailyPost>(`/posts/${id}`);
-              setData(p);
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error: any) {
-              setErr(error?.message || "Failed to load");
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onClick={loadData}
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -123,6 +129,13 @@ export function PostDetailButton({ id }: { id: number }) {
               <Calendar className="h-3.5 w-3.5" />{" "}
               {formatDate(data.date_posted)}
             </Badge>
+
+            {/* EDIT BUTTON */}
+            <PostFormDialog postData={data} onCreated={() => loadData()}>
+              <Badge variant="secondary" className="gap-2 cursor-pointer">
+                <Edit3Icon className="size-4" /> Edit
+              </Badge>
+            </PostFormDialog>
           </div>
           <Separator />
           <Field label="Series Title" value={data.series_title} />
@@ -148,6 +161,20 @@ export function DevotionDetailButton({ id }: { id: number }) {
   const [data, setData] = useState<DailyDevotion | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const loadData = async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const d = await api<DailyDevotion>(`/devotions/${id}`);
+      setData(d);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setErr(e?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DetailDialog
       title={`Daily Devotion #${id}`}
@@ -157,19 +184,7 @@ export function DevotionDetailButton({ id }: { id: number }) {
           variant="outline"
           size="icon"
           className="rounded-xl primary-btn"
-          onClick={async () => {
-            setLoading(true);
-            setErr(null);
-            try {
-              const d = await api<DailyDevotion>(`/devotions/${id}`);
-              setData(d);
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (e: any) {
-              setErr(e?.message || "Failed to load");
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onClick={loadData}
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -199,12 +214,22 @@ export function DevotionDetailButton({ id }: { id: number }) {
             )} */}
               <ImageIcon className="h-6 w-6 text-muted-foreground" />
             </div>
-            <div>
+            <div className="flex-1">
               <div className="text-lg font-semibold">{data.citation}</div>
               <div className="mt-1 text-sm text-muted-foreground">
                 {formatDate(data.date_posted)}
               </div>
             </div>
+
+            {/* EDIT BUTTON */}
+            <DevotionFormDialog
+              devotionData={data}
+              onCreated={() => loadData()}
+            >
+              <Badge variant="secondary" className="gap-2 cursor-pointer">
+                <Edit3Icon className="size-4" /> Edit
+              </Badge>
+            </DevotionFormDialog>
           </div>
           <Separator />
           <Field label="Verse Content" value={data.verse_content} />
@@ -250,6 +275,20 @@ export function HymnDetailsButton({ id }: { id: number }) {
   const [data, setData] = useState<Hymn | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const loadData = async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const d = await api<Hymn>(`/hymns/${id}`);
+      setData(d);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      setErr(e?.message || "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <DetailDialog
       title={`Hymn #${id}`}
@@ -259,19 +298,7 @@ export function HymnDetailsButton({ id }: { id: number }) {
           variant="outline"
           size="icon"
           className="rounded-xl primary-btn"
-          onClick={async () => {
-            setLoading(true);
-            setErr(null);
-            try {
-              const d = await api<Hymn>(`/hymns/${id}`);
-              setData(d);
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (e: any) {
-              setErr(e?.message || "Failed to load");
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onClick={loadData}
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -295,7 +322,7 @@ export function HymnDetailsButton({ id }: { id: number }) {
               <Music2Icon className="h-6 w-6 text-muted-foreground" />
             </div>
 
-            <div className="min-w-0">
+            <div className="flex-1">
               <div className="text-lg font-semibold truncate">
                 Hymn {data.hymn_number}: {data.hymn_title}
               </div>
@@ -308,6 +335,13 @@ export function HymnDetailsButton({ id }: { id: number }) {
                 )}
               </div>
             </div>
+
+            {/* EDIT BUTTON */}
+            <HymnFormDialog hymnData={data} onCreated={() => loadData()}>
+              <Badge variant="secondary" className="gap-2 cursor-pointer">
+                <Edit3Icon className="size-4" /> Edit
+              </Badge>
+            </HymnFormDialog>
           </div>
 
           <Separator />

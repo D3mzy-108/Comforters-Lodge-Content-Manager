@@ -24,7 +24,7 @@ import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
 import { PostDetailButton } from "../DetailsDialog";
-import CreatePostDialog from "../forms/posts/CreatePost";
+import PostFormDialog from "../forms/posts/PostForm";
 
 export default function PostsPanel({
   posts,
@@ -80,7 +80,11 @@ export default function PostsPanel({
                 className="pl-9 sm:w-[320px]"
               />
             </div>
-            <CreatePostDialog onCreated={onCreated} />
+            <PostFormDialog
+              postData={undefined}
+              onCreated={onCreated}
+              children={undefined}
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -108,7 +112,13 @@ export default function PostsPanel({
               subtitle={
                 q ? "Try a different search." : "Create your first Daily Post."
               }
-              action={<CreatePostDialog onCreated={onCreated} />}
+              action={
+                <PostFormDialog
+                  postData={undefined}
+                  onCreated={onCreated}
+                  children={undefined}
+                />
+              }
             />
           ) : (
             <div className="rounded-2xl border text-wrap">

@@ -11,17 +11,23 @@ import type { DailyDevotion, UploadMode } from "../../../../utils/schemas";
 import BaseFormLayout from "../BaseFormLayout";
 import { FormField, type FormFieldData } from "../FormField";
 
-export default function CreateDevotionDialog({
+export default function DevotionFormDialog({
+  devotionData,
   onCreated,
+  children,
 }: {
+  devotionData: DailyDevotion | undefined;
   onCreated: () => void;
+  children: React.ReactNode | undefined;
 }) {
   const { show, node } = useToastLike();
   const [mode, setMode] = useState<UploadMode>("single");
   // SINGLE FIELDS
-  const [citation, setCitation] = useState("");
-  const [verseContent, setVerseContent] = useState("");
-  const [datePosted, setDatePosted] = useState("");
+  const [citation, setCitation] = useState(devotionData?.citation || "");
+  const [verseContent, setVerseContent] = useState(
+    devotionData?.verse_content || "",
+  );
+  const [datePosted, setDatePosted] = useState(devotionData?.date_posted || "");
   // const [image, setImage] = useState<File | null>(null);
   // TSV
   const [tsv, setTsv] = useState<File | null>(null);
@@ -84,10 +90,17 @@ export default function CreateDevotionDialog({
         if (datePosted.trim()) fd.append("date_posted", datePosted.trim());
       }
 
-      await api<DailyDevotion>("/devotions", {
-        method: "POST",
-        body: fd,
-      });
+      if (devotionData !== undefined) {
+        await api<DailyDevotion>(`/devotions/${devotionData.id}`, {
+          method: "PATCH",
+          body: fd,
+        });
+      } else {
+        await api<DailyDevotion>("/devotions", {
+          method: "POST",
+          body: fd,
+        });
+      }
 
       show("Devotion created.");
       onCreated();
@@ -109,9 +122,11 @@ export default function CreateDevotionDialog({
         onSubmit={submit}
       >
         <BaseFormLayout.Trigger>
-          <Button className="gap-2 rounded-2xl">
-            <Music2Icon className="h-4 w-4" /> Create Devotion
-          </Button>
+          {children ?? (
+            <Button className="gap-2 rounded-2xl">
+              <Music2Icon className="h-4 w-4" /> Create Devotion
+            </Button>
+          )}
         </BaseFormLayout.Trigger>
         <BaseFormLayout.Content>
           <Tabs value={mode} onValueChange={(v) => setMode(v as UploadMode)}>
@@ -119,7 +134,11 @@ export default function CreateDevotionDialog({
               <TabsTrigger className="tab-style" value="single">
                 Single
               </TabsTrigger>
-              <TabsTrigger className="tab-style gap-2" value="tsv">
+              <TabsTrigger
+                className="tab-style gap-2"
+                value="tsv"
+                disabled={devotionData !== undefined}
+              >
                 <FileUpIcon className="h-4 w-4" /> Bulk TSV
               </TabsTrigger>
             </TabsList>

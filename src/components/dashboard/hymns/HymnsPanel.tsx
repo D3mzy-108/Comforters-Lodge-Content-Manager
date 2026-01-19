@@ -22,8 +22,8 @@ import type { Hymn, PagePaginator } from "../../../utils/schemas";
 import EmptyState from "../EmptyDataState";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
-import CreateHymnDialog from "../forms/hymns/CreateHymn";
 import { HymnDetailsButton } from "../DetailsDialog";
+import HymnFormDialog from "../forms/hymns/HymnForm";
 
 export default function HymnsPanel({
   hymns,
@@ -86,7 +86,11 @@ export default function HymnsPanel({
                 className="pl-9 sm:w-[320px]"
               />
             </div>
-            <CreateHymnDialog onCreated={onCreated} />
+            <HymnFormDialog
+              hymnData={undefined}
+              onCreated={onCreated}
+              children={undefined}
+            />
           </div>
         </CardHeader>
         <CardContent>
@@ -114,7 +118,13 @@ export default function HymnsPanel({
               subtitle={
                 q ? "Try a different search." : "Create your first Daily Hymn."
               }
-              action={<CreateHymnDialog onCreated={onCreated} />}
+              action={
+                <HymnFormDialog
+                  hymnData={undefined}
+                  onCreated={onCreated}
+                  children={undefined}
+                />
+              }
             />
           ) : (
             <div className="rounded-2xl border text-wrap">

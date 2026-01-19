@@ -1,10 +1,13 @@
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import ComfortersLodgeAdmin from "./screens/Dashboard";
 
 function App() {
   return (
     <div className="w-full">
-      <ComfortersLodgeAdmin />
+      <Routes>
+        <Route path="/" element={<ComfortersLodgeAdmin />} />
+      </Routes>
     </div>
   );
 }
