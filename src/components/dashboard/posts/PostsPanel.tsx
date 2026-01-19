@@ -24,7 +24,7 @@ import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
 import { PostDetailButton } from "../DetailsDialog";
-import CreatePostDialog from "../forms/CreatePost";
+import CreatePostDialog from "../forms/posts/CreatePost";
 
 export default function PostsPanel({
   posts,
@@ -143,7 +143,7 @@ export default function PostsPanel({
                           <DeleteButton
                             label={`Delete ${p.personal_question.substring(
                               0,
-                              10
+                              10,
                             )}...`}
                             onConfirm={async () => {
                               await api(`/posts/${p.id}`, { method: "DELETE" });

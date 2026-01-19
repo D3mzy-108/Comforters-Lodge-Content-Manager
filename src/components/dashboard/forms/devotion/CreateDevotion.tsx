@@ -1,23 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useToastLike } from "../../toastFeedback";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { Button } from "../../ui/button";
-import { FileUpIcon, FolderIcon, Loader2, PlusIcon } from "lucide-react";
-import { Label } from "../../ui/label";
-import { Input } from "../../ui/input";
-import { Textarea } from "../../ui/textarea";
-import { api } from "../../../utils/api/api_connection";
-import type { DailyDevotion, UploadMode } from "../../../utils/schemas";
+import { useToastLike } from "../../../toastFeedback";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
+import { Button } from "../../../ui/button";
+import { FileUpIcon, FolderIcon, Music2Icon } from "lucide-react";
+import { Label } from "../../../ui/label";
+import { Input } from "../../../ui/input";
+import { api } from "../../../../utils/api/api_connection";
+import type { DailyDevotion, UploadMode } from "../../../../utils/schemas";
+import BaseFormLayout from "../BaseFormLayout";
+import { FormField, type FormFieldData } from "../FormField";
 
 export default function CreateDevotionDialog({
   onCreated,
@@ -25,18 +17,47 @@ export default function CreateDevotionDialog({
   onCreated: () => void;
 }) {
   const { show, node } = useToastLike();
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<UploadMode>("single");
-
   // SINGLE FIELDS
   const [citation, setCitation] = useState("");
   const [verseContent, setVerseContent] = useState("");
   const [datePosted, setDatePosted] = useState("");
   // const [image, setImage] = useState<File | null>(null);
-
   // TSV
   const [tsv, setTsv] = useState<File | null>(null);
+  // FORM FIELDS
+  const formFields: FormFieldData[] = [
+    {
+      label: "Citation / Bible Verse",
+      fieldType: "single_line_input" as const,
+      inputType: "text",
+      placeHolder: "e.g., John 3:16",
+      value: citation,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setCitation(e.target.value),
+    },
+    {
+      label: "Verse Content",
+      fieldType: "multi_line_input" as const,
+      inputType: "text",
+      placeHolder: "Type the verse content here...",
+      value: verseContent,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        setVerseContent(e.target.value),
+    },
+    {
+      label: "Date Posted (optional)",
+      fieldType: "single_line_input" as const,
+      inputType: "date",
+      placeHolder: "e.g., 2024-01-01",
+      value: datePosted,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setDatePosted(e.target.value),
+    },
+  ];
 
   const reset = () => {
     setCitation("");
@@ -46,7 +67,6 @@ export default function CreateDevotionDialog({
   };
 
   const submit = async () => {
-    setBusy(true);
     try {
       const fd = new FormData();
 
@@ -71,40 +91,29 @@ export default function CreateDevotionDialog({
 
       show("Devotion created.");
       onCreated();
-      setOpen(false);
-      reset();
+      return true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       show(e?.message || "Failed to create devotion");
-    } finally {
-      setBusy(false);
+      return false;
     }
   };
 
   return (
     <>
       {node}
-      <Dialog
-        open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (!v) reset();
-        }}
+      <BaseFormLayout
+        title="Create Daily Devotion"
+        description="Add scripture content."
+        reset={reset}
+        onSubmit={submit}
       >
-        <DialogTrigger asChild>
+        <BaseFormLayout.Trigger>
           <Button className="gap-2 rounded-2xl">
-            <PlusIcon className="h-4 w-4" /> Create Devotion
+            <Music2Icon className="h-4 w-4" /> Create Devotion
           </Button>
-        </DialogTrigger>
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-4xl w-full border-0 rounded-2xl"
-        >
-          <DialogHeader>
-            <DialogTitle>Create Daily Devotion</DialogTitle>
-            <DialogDescription>Add scripture content.</DialogDescription>
-          </DialogHeader>
-
+        </BaseFormLayout.Trigger>
+        <BaseFormLayout.Content>
           <Tabs value={mode} onValueChange={(v) => setMode(v as UploadMode)}>
             <TabsList className="grid w-full grid-cols-2 pb-12">
               <TabsTrigger className="tab-style" value="single">
@@ -118,32 +127,9 @@ export default function CreateDevotionDialog({
             <TabsContent value="single" className="mt-4 space-y-4">
               <div className="scroll-style">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label>Citation / Bible Verse</Label>
-                    <Input
-                      value={citation}
-                      onChange={(e) => setCitation(e.target.value)}
-                      placeholder="e.g., Psalm 23:1"
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label>Verse Content</Label>
-                    <Textarea
-                      value={verseContent}
-                      onChange={(e) => setVerseContent(e.target.value)}
-                      placeholder="The LORD is my shepherd…"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Date Posted (optional)</Label>
-                    <Input
-                      value={datePosted}
-                      onChange={(e) => setDatePosted(e.target.value)}
-                      placeholder="YYYY-MM-DD"
-                    />
-                  </div>
+                  {formFields.map((field, idx) => (
+                    <FormField key={idx} data={field} />
+                  ))}
                 </div>
               </div>
             </TabsContent>
@@ -184,31 +170,8 @@ export default function CreateDevotionDialog({
               </div>
             </TabsContent>
           </Tabs>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="outline-btn"
-              disabled={busy}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={submit}
-              disabled={busy}
-              className="gap-2 rounded-2xl primary-btn"
-            >
-              {busy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <PlusIcon className="h-4 w-4" />
-              )}
-              Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </BaseFormLayout.Content>
+      </BaseFormLayout>
     </>
   );
 }

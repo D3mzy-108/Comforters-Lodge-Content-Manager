@@ -22,7 +22,7 @@ import type { Hymn, PagePaginator } from "../../../utils/schemas";
 import EmptyState from "../EmptyDataState";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
-import CreateHymnDialog from "../forms/CreateHymn";
+import CreateHymnDialog from "../forms/hymns/CreateHymn";
 import { HymnDetailsButton } from "../DetailsDialog";
 
 export default function HymnsPanel({

@@ -1,30 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useToastLike } from "../../toastFeedback";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
-import { Button } from "../../ui/button";
-import {
-  FileUpIcon,
-  FolderIcon,
-  Loader2,
-  PlusIcon,
-  Music2Icon,
-  CircleQuestionMarkIcon,
-} from "lucide-react";
-import { Label } from "../../ui/label";
-import { Input } from "../../ui/input";
-import { Textarea } from "../../ui/textarea";
-import { api } from "../../../utils/api/api_connection";
-import type { UploadMode } from "../../../utils/schemas";
+import { useToastLike } from "../../../toastFeedback";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
+import { Button } from "../../../ui/button";
+import { FileUpIcon, FolderIcon, Music2Icon } from "lucide-react";
+import { Label } from "../../../ui/label";
+import { Input } from "../../../ui/input";
+import { api } from "../../../../utils/api/api_connection";
+import type { UploadMode } from "../../../../utils/schemas";
+import { FormField, type FormFieldData } from "../FormField";
+import BaseFormLayout from "../BaseFormLayout";
 
 type Hymn = {
   id: number;
@@ -57,10 +42,7 @@ export default function CreateHymnDialog({
   onCreated: () => void;
 }) {
   const { show, node } = useToastLike();
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<UploadMode>("single");
-
   // SINGLE FIELDS
   const [hymnNumber, setHymnNumber] = useState<string>("");
   const [hymnTitle, setHymnTitle] = useState("");
@@ -70,13 +52,112 @@ export default function CreateHymnDialog({
   const [scripture, setScripture] = useState("");
   const [chorusTitle, setChorusTitle] = useState("");
   const [chorus, setChorus] = useState("");
-
   // Verses UX: simple textarea that we split into an array
   // Tip: separate verses with a blank line.
   const [versesText, setVersesText] = useState("");
-
   // TSV
   const [tsv, setTsv] = useState<File | null>(null);
+
+  const parseVerses = (text: string): string[] => {
+    return text
+      .split(/\n\s*\n/g)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  };
+
+  // FORM FIELDS
+  const formFields: FormFieldData[] = [
+    {
+      label: "Hymn Number",
+      fieldType: "single_line_input",
+      inputType: "number",
+      placeHolder: "e.g., 101",
+      value: hymnNumber,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setHymnNumber(e.target.value),
+    },
+    {
+      label: "Hymn Title",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., Amazing Grace",
+      value: hymnTitle,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setHymnTitle(e.target.value),
+    },
+    {
+      label: "Classification",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., Praise / Worship",
+      value: classification,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setClassification(e.target.value),
+    },
+    {
+      label: "Tune Ref",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., 101",
+      value: tuneRef,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setTuneRef(e.target.value),
+    },
+    {
+      label: "Cross Ref",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., 101",
+      value: crossRef,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setCrossRef(e.target.value),
+    },
+    {
+      label: "Scripture",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., John 3:16",
+      value: scripture,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setScripture(e.target.value),
+    },
+    {
+      label: "Chorus Title",
+      fieldType: "single_line_input",
+      inputType: "text",
+      placeHolder: "e.g., Chorus",
+      value: chorusTitle,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setChorusTitle(e.target.value),
+    },
+    {
+      label: "Chorus",
+      fieldType: "multi_line_input",
+      inputType: "text",
+      placeHolder: "Type the chorus here...",
+      value: chorus,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        setChorus(e.target.value),
+    },
+    {
+      label: "Verses",
+      fieldType: "multi_line_input",
+      inputType: "text",
+      placeHolder: VERSE_TOOLTIP,
+      value: versesText,
+      helpText: `Verses detected: ${parseVerses(versesText).length}`,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        setVersesText(e.target.value),
+    },
+  ];
 
   const reset = () => {
     setHymnNumber("");
@@ -91,16 +172,7 @@ export default function CreateHymnDialog({
     setTsv(null);
   };
 
-  const parseVerses = (text: string): string[] => {
-    // Split verses on blank lines; trim and remove empties
-    return text
-      .split(/\n\s*\n/g)
-      .map((v) => v.trim())
-      .filter(Boolean);
-  };
-
   const submit = async () => {
-    setBusy(true);
     try {
       const fd = new FormData();
 
@@ -132,7 +204,9 @@ export default function CreateHymnDialog({
         fd.append("chorus", chorus.trim());
 
         // Option A (recommended): send verses as JSON
-        fd.append("verses", JSON.stringify(versesArr));
+        versesArr.forEach((v) => {
+          fd.append(`verses`, v);
+        });
 
         // Option B (common alternative): send repeated keys
         // versesArr.forEach((v) => fd.append("verses", v));
@@ -145,43 +219,29 @@ export default function CreateHymnDialog({
 
       show("Hymn created.");
       onCreated();
-      setOpen(false);
-      reset();
+      return true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       show(e?.message || "Failed to create hymn");
-    } finally {
-      setBusy(false);
+      return false;
     }
   };
 
   return (
     <>
       {node}
-      <Dialog
-        open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (!v) reset();
-        }}
+      <BaseFormLayout
+        title="Create Hymn"
+        description="Add hymn content manually or via TSV upload."
+        reset={reset}
+        onSubmit={submit}
       >
-        <DialogTrigger asChild>
+        <BaseFormLayout.Trigger>
           <Button className="gap-2 rounded-2xl">
             <Music2Icon className="h-4 w-4" /> Create Hymn
           </Button>
-        </DialogTrigger>
-
-        <DialogContent
-          showCloseButton={false}
-          className="max-w-4xl w-full border-0 rounded-2xl"
-        >
-          <DialogHeader>
-            <DialogTitle>Create Hymn</DialogTitle>
-            <DialogDescription>
-              Add hymn content manually or via TSV upload.
-            </DialogDescription>
-          </DialogHeader>
-
+        </BaseFormLayout.Trigger>
+        <BaseFormLayout.Content>
           <Tabs value={mode} onValueChange={(v) => setMode(v as UploadMode)}>
             <TabsList className="grid w-full grid-cols-2 pb-12">
               <TabsTrigger className="tab-style" value="single">
@@ -195,96 +255,9 @@ export default function CreateHymnDialog({
             <TabsContent value="single" className="mt-4 space-y-4">
               <div className="scroll-style">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Hymn Number</Label>
-                    <Input
-                      value={hymnNumber}
-                      onChange={(e) => setHymnNumber(e.target.value)}
-                      placeholder="e.g., 101"
-                      inputMode="numeric"
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-1">
-                    <Label>Hymn Title</Label>
-                    <Input
-                      value={hymnTitle}
-                      onChange={(e) => setHymnTitle(e.target.value)}
-                      placeholder="e.g., Amazing Grace"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Classification</Label>
-                    <Input
-                      value={classification}
-                      onChange={(e) => setClassification(e.target.value)}
-                      placeholder="e.g., Praise / Worship"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Tune Ref</Label>
-                    <Input
-                      value={tuneRef}
-                      onChange={(e) => setTuneRef(e.target.value)}
-                      placeholder="e.g., NEW BRITAIN"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Cross Ref</Label>
-                    <Input
-                      value={crossRef}
-                      onChange={(e) => setCrossRef(e.target.value)}
-                      placeholder="e.g., Hymn 45"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Scripture</Label>
-                    <Input
-                      value={scripture}
-                      onChange={(e) => setScripture(e.target.value)}
-                      placeholder="e.g., John 3:16"
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label>Chorus Title</Label>
-                    <Input
-                      value={chorusTitle}
-                      onChange={(e) => setChorusTitle(e.target.value)}
-                      placeholder="e.g., Chorus"
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label>Chorus</Label>
-                    <Textarea
-                      value={chorus}
-                      onChange={(e) => setChorus(e.target.value)}
-                      placeholder="Type the chorus here..."
-                    />
-                  </div>
-
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label>
-                      Verses{" "}
-                      <span title={VERSE_TOOLTIP}>
-                        <CircleQuestionMarkIcon className="size-4" />
-                      </span>
-                    </Label>
-                    <Textarea
-                      value={versesText}
-                      onChange={(e) => setVersesText(e.target.value)}
-                      placeholder={VERSE_TOOLTIP}
-                      className="min-h-55"
-                    />
-                    <div className="text-sm text-muted-foreground">
-                      Verses detected: {parseVerses(versesText).length}
-                    </div>
-                  </div>
+                  {formFields.map((field, idx) => (
+                    <FormField key={idx} data={field} />
+                  ))}
                 </div>
               </div>
             </TabsContent>
@@ -337,31 +310,8 @@ export default function CreateHymnDialog({
               </div>
             </TabsContent>
           </Tabs>
-
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="outline-btn"
-              disabled={busy}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={submit}
-              disabled={busy}
-              className="gap-2 rounded-2xl primary-btn"
-            >
-              {busy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <PlusIcon className="h-4 w-4" />
-              )}
-              Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </BaseFormLayout.Content>
+      </BaseFormLayout>
     </>
   );
 }

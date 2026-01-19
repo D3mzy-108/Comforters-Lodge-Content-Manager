@@ -25,7 +25,7 @@ import { formatDate } from "../../../utils/format_utils";
 import { api } from "../../../utils/api/api_connection";
 import DeleteButton from "../../DeleteButton";
 import { DevotionDetailButton } from "../DetailsDialog";
-import CreateDevotionDialog from "../forms/CreateDevotion";
+import CreateDevotionDialog from "../forms/devotion/CreateDevotion";
 
 export default function DevotionsPanel({
   devotions,
@@ -147,7 +147,7 @@ export default function DevotionsPanel({
                           <div>
                             <div className="font-medium">{d.citation}</div>
                             <div className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                              {d.verse_content}
+                              {`${d.verse_content.slice(0, 75)}${d.verse_content.length > 75 ? "..." : ""}`}
                             </div>
                           </div>
                         </div>

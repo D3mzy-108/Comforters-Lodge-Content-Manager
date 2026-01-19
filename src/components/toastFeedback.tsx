@@ -12,7 +12,7 @@ export function useToastLike() {
   };
 
   const node = msg ? (
-    <div className="fixed bottom-5 right-5 z-50 max-w-[90vw] rounded-2xl border bg-background px-4 py-3 shadow-xl">
+    <div className="fixed bottom-5 right-5 z-9999 max-w-[90vw] rounded-2xl border bg-background px-4 py-3 shadow-xl">
       <div className="text-sm">{msg}</div>
     </div>
   ) : null;
