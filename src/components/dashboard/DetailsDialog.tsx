@@ -233,6 +233,7 @@ export function DevotionDetailButton({ id }: { id: number }) {
           </div>
           <Separator />
           <Field label="Verse Content" value={data.verse_content} />
+          <Field label="Prayer" value={data.prayer} />
         </div>
       )}
     </DetailDialog>

@@ -17,6 +17,7 @@ export type DailyDevotion = {
   //   cover_image_url: string;
   citation: string;
   verse_content: string;
+  prayer: string;
   date_posted: string; // ISO date
 };
 

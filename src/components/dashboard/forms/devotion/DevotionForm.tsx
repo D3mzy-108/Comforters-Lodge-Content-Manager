@@ -27,6 +27,7 @@ export default function DevotionFormDialog({
   const [verseContent, setVerseContent] = useState(
     devotionData?.verse_content || "",
   );
+  const [prayer, setPrayer] = useState(devotionData?.prayer || "");
   const [datePosted, setDatePosted] = useState(devotionData?.date_posted || "");
   // const [image, setImage] = useState<File | null>(null);
   // TSV
@@ -52,6 +53,16 @@ export default function DevotionFormDialog({
       helpText: undefined,
       onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
         setVerseContent(e.target.value),
+    },
+    {
+      label: "Prayer",
+      fieldType: "multi_line_input" as const,
+      inputType: "text",
+      placeHolder: "Type prayer here...",
+      value: prayer,
+      helpText: undefined,
+      onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+        setPrayer(e.target.value),
     },
     {
       label: "Date Posted (optional)",
@@ -167,7 +178,7 @@ export default function DevotionFormDialog({
                     TSV header required
                   </div>
                   <div className="mt-1.5 text-base">
-                    citation, verse_content, date_posted
+                    citation, verse_content, prayer, date_posted
                   </div>
                 </div>
                 <div className="mt-0.75 text-sm text-muted-foreground">
