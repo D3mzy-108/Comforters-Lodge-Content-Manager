@@ -98,6 +98,7 @@ export default function DevotionFormDialog({
         // fd.append("cover_image", image);
         fd.append("citation", citation);
         fd.append("verse_content", verseContent);
+        fd.append("prayer", prayer);
         if (datePosted.trim()) fd.append("date_posted", datePosted.trim());
       }
 
