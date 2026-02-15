@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useToastLike } from "../../../toastFeedback";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../ui/tabs";
 import { Button } from "../../../ui/button";
-import { FileUpIcon, FolderIcon, Music2Icon } from "lucide-react";
+import { FileUpIcon, FolderIcon, ImageIcon } from "lucide-react";
 import { Label } from "../../../ui/label";
 import { Input } from "../../../ui/input";
 import { api } from "../../../../utils/api/api_connection";
@@ -135,8 +135,8 @@ export default function DevotionFormDialog({
       >
         <BaseFormLayout.Trigger>
           {children ?? (
-            <Button className="gap-2 rounded-2xl">
-              <Music2Icon className="h-4 w-4" /> Create Devotion
+            <Button className="gap-2 rounded-2xl primary-btn">
+              <ImageIcon className="h-4 w-4" /> Create Devotion
             </Button>
           )}
         </BaseFormLayout.Trigger>

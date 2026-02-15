@@ -255,7 +255,7 @@ export default function HymnFormDialog({
       >
         <BaseFormLayout.Trigger>
           {children ?? (
-            <Button className="gap-2 rounded-2xl">
+            <Button className="gap-2 rounded-2xl primary-btn">
               <Music2Icon className="h-4 w-4" /> Create Hymn
             </Button>
           )}
